@@ -3,15 +3,6 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QPushButton,
 from PyQt5 import QtCore, QtGui, QtWidgets
 import pandas as pd
 
-# Holds all of the patient's info
-class Patient:
-    def __init__(self, **kwargs):
-        for key, value in kwargs.items(): # python magic initializer
-            setattr(self, key, value)
-    
-    def __repr__(self):
-        return f"Patient({', '.join(f'{k}={v}' for k, v in self.__dict__.items())})"
-
 def load_patients(file_path):
     # Load the spreadsheet TODO: check if it works with multiple sheets, or one sheet required
     df = pd.read_excel(file_path, sheet_name='Лист1', na_filter=True)
@@ -25,16 +16,6 @@ def load_patients(file_path):
 
     # Group the data by patient name
     grouped = df.groupby(first_col)
-    patients = []
-
-    # Write down the patients
-    for name, group in grouped:
-        entries = group.to_dict('records')
-        patient_data = {col: [entry[col] for entry in entries] for col in df.columns}
-        patient = Patient(**patient_data)
-        patients.append(patient)
-
-    return patients
 
 class FileManipulator(QMainWindow):
     def __init__(self):
@@ -89,7 +70,6 @@ class FileManipulator(QMainWindow):
     def processFile(self):
         if hasattr(self, 'filePath'):
             self.patients = load_patients(self.filePath)
-            self.label.setText(f'Loaded {len(self.patients)} patients. Ready to process.')
 
     # Saves the file
     def saveFile(self):
